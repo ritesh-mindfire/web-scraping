@@ -7,7 +7,7 @@ from products.models import Product
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'slug', 'title', 'banner_thumb']
+    list_display = ['id', 'title', 'price', 'banner_thumb']
 
     def banner_thumb(self, obj):
         return format_html("<img src={} alt={} target='_blank' width='100' />".format(obj.banner.url, obj.title))

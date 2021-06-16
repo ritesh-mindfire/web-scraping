@@ -1,16 +1,11 @@
-import json
-import logging
 import os
 from pathlib import Path
-from urllib.request import urlopen, Request
+from urllib.request import urlopen
 
 from time import time
-import logging
-import os
 from queue import Queue
 from threading import Thread
 
-logger = logging.getLogger(__name__)
 
 
 def download_link(directory, link):

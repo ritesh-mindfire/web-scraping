@@ -5,6 +5,7 @@ from products import views
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('api/products/', views.ProductsList.as_view()),
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)

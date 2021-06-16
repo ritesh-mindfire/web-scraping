@@ -19,8 +19,9 @@ def scrap_amazon_books_data():
 
         title = anchor_ele.find('div', attrs={'class': 'p13n-sc-truncate'}).text.strip('\n ')
         img_src = anchor_ele.find('img').get('src', '')
+        price = book.find('span', attrs={'class': 'p13n-sc-price'}).text.strip('₹')
 
-        kwargs = {'title': title, 'price': 100, 'link': img_src, 'desc': 'N/A'}
+        kwargs = {'title': title, 'price': price, 'link': img_src, 'desc': 'N/A'}
         scrap_data.append(kwargs)
     
     return scrap_data
@@ -28,4 +29,4 @@ def scrap_amazon_books_data():
 
 if __name__ == '__main__':
     scrap_data_lst = scrap_amazon_books_data()
-    print(scrap_data_lst)
+    # print(scrap_data_lst)
