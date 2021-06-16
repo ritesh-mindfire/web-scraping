@@ -1,18 +1,19 @@
 import os
 from rest_framework import filters
 from rest_framework import generics
+from rest_framework import serializers
 
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.conf import settings
 from django.utils.text import slugify
-import django_filters.rest_framework
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 from products.models import Product, PriceHistory
+from products.serializers import ProductModelSerializer
 from products.scrapper import scrap_amazon_books_data
 from products import image_downloader
-from products.serializers import ProductModelSerializer
+
 
 # Create your views here.
 def update_product_using_scrap_data():
@@ -58,14 +59,31 @@ def update_product_using_scrap_data():
 def dashboard(request):
     return HttpResponse('<h1>It\'s working.. :)</h1>')
 
+
+class PriceFilterBackend(filters.BaseFilterBackend):
+    """
+    Filter that only allows users to see price between a range
+    """
+    def filter_queryset(self, request, queryset, view):
+        price_lt = request.query_params.get('price_lt')
+        price_gt = request.query_params.get('price_gt')
+        if price_lt and not price_lt.isnumeric():
+            raise serializers.ValidationError({'price_lt': "Enter a number."})
+        if price_gt and not price_gt.isnumeric():
+            raise serializers.ValidationError({'price_gt': "Enter a number."})
+        if price_lt:
+            queryset = queryset.filter(price__lt=price_lt)
+        if price_gt:
+            queryset = queryset.filter(price__gt=price_gt)
+        return queryset
+
+
 class ProductsList(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductModelSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, PriceFilterBackend]
     search_fields = ['title',]
     ordering_fields = ['title', 'price', 'updated_at']
+    filterset_fields = ['price',]
 
 
-    # filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    # search_fields = ['name', 'country']
-    # filterset_fields = ['name', 'country']
