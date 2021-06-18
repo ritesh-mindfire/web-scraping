@@ -2,6 +2,7 @@ import os
 from rest_framework import filters
 from rest_framework import generics
 from rest_framework import serializers
+from celery import shared_task
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -16,8 +17,10 @@ from products import image_downloader
 
 
 # Create your views here.
-def update_product_using_scrap_data():
+@shared_task(name='task_update_product_using_scrap_data')
+def task_update_product_using_scrap_data():
     scrap_data_lst = scrap_amazon_books_data()
+    print('lenght of scrapped data', len(scrap_data_lst))
     image_links = []
 
     for dct in scrap_data_lst:
@@ -57,7 +60,8 @@ def update_product_using_scrap_data():
 
 
 def dashboard(request):
-    return HttpResponse('<h1>It\'s working.. :)</h1>')
+    ctx = {}
+    return render(request, 'dashboard.html', context=ctx)
 
 
 class PriceFilterBackend(filters.BaseFilterBackend):

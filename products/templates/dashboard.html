@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .pclass span{
+            border: 2px solid black;
+            padding: 1px;
+            margin: 1px;
+        }
+    </style>
+</head>
+<body>
+    <p id="p"></p>
+
+    <table id='products' width=100%>
+        <thead>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Price</th>
+        </thead>
+    </table>
+    <button id='loadmore'> Load More</button>
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            $('#loadmore').on('click', function(){
+                fetch_prod()
+            })
+
+            function update_prod(id, title, price){
+                var prod_ele = "<tr><td>"+id+"</td><td>"+title+"</td><td>"+price+"</td></tr>"
+                $("#products").append(prod_ele)   
+            }
+            
+            url = "/api/products/"
+            function fetch_prod(){
+                $.ajax(url, {
+                    type: 'GET',  // http method
+                    // data: { myData: 'This is my  // data to submit
+                    dataType: "json",
+                    success: function (data, status, xhr) {
+                        $('#p').append('status: ' + status);
+                        for(i=0; i<data.results.length; i++) {
+                            prod_obj = data.results[i]
+                            update_prod(prod_obj.id, prod_obj.title, prod_obj.price)
+                        }
+                        url = data.next;
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        $('#p').append('Error' + errorMessage);
+                    }
+                });
+            }
+
+        })
+    </script>
+</body>
+</html>

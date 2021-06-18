@@ -6,3 +6,5 @@ Pillow==8.2.0
 python-slugify==5.0.2
 djangorestframework==3.12.4
 django-filter==2.4.0
+celery==5.1.0
+redis==3.5.3
