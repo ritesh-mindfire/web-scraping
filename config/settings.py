@@ -138,6 +138,17 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_TASK_DEFAULT_QUEUE = "default"
+CELERY_TASK_DEFAULT_EXCHANGE = "default"
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = "topic"
+CELERY_TASK_DEFAULT_ROUTING_KEY = "default"
+CELERY_TASK_ROUTES = {  
+  "products.tasks.*": {
+      "queue": "samplequeueone"
+  }
+}
+
 CELERY_BEAT_SCHEDULE = {
     'my-custom-schedule-task': {
         'task': 'task_update_product_using_scrap_data',
