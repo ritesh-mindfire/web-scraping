@@ -41,10 +41,11 @@ def task_update_product_using_scrap_data():
             obj = Product.objects.create(slug=slug_field, title=title, price=price, banner=file_path)
             print('Product created: %s' % obj.id)
         else:
-            if float(obj.price) != float(price):
-                obj.price = price
-                obj.save() 
+            if (price and not obj.price) or (price and obj.price and float(obj.price) != float(price)):
                 PriceHistory.objects.create(product=obj, price=price)
+            obj.price = price
+            obj.save()
+
             print('Update price and price history table.')
 
         # req = requests.get(link, stream=True)

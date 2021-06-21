@@ -5,7 +5,7 @@ from django.db import models
 class Product(models.Model):
     slug = models.CharField(max_length=256, unique=True, db_index=True)
     title = models.CharField(max_length=512)
-    price = models.FloatField(default=0)
+    price = models.FloatField(default=0, null= True)
     banner = models.ImageField(upload_to='products')
 
     created_at = models.DateTimeField(auto_now_add=True)
