@@ -10,21 +10,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
+from config.local_settings import *
 from celery.schedules import crontab
+from kombu.utils.url import safequote
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '4cp!ab-akj_0dvkr565_e30zhbo_f*rxoia=7&e8zj935)+pg1'
+# SECRET_KEY = '4cp!ab-akj_0dvkr565_e30zhbo_f*rxoia=7&e8zj935)+pg1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -79,11 +80,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': POSTGRES_DB_NAME,
+       'USER': POSTGRES_DB_USER,
+       'PASSWORD': POSTGRES_DB_PASSWORD,
+       'HOST': 'localhost',
+       'PORT': '5432',
+   }
 }
 
 
@@ -133,16 +143,34 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+if DEBUG:
+    redis_broker_url = 'redis://localhost:6379/0'
+    CELERY_BROKER_URL = redis_broker_url
+    CELERY_TASK_DEFAULT_QUEUE = 'default'
+else:
+    aws_access_key = safequote(AWS_ACCESS_KEY_ID)
+    aws_secret_key = safequote(AWS_SECRET_ACCESS_KEY)
+
+    sqs_broker_url = "sqs://{aws_access_key}:{aws_secret_key}@".format(
+        aws_access_key=aws_access_key, aws_secret_key=aws_secret_key,
+    )
+    CELERY_BROKER_URL = sqs_broker_url
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+                            'region': SQS_REGION_NAME, 
+                            # 'visibility_timeout': 30,
+                            # 'polling_interval':20,
+                            }
+    CELERY_TASK_DEFAULT_QUEUE = SQS_DEFAULT_QUEUE
+
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-CELERY_TASK_DEFAULT_QUEUE = "default"
 CELERY_TASK_DEFAULT_EXCHANGE = "default"
 CELERY_TASK_DEFAULT_EXCHANGE_TYPE = "topic"
-CELERY_TASK_DEFAULT_ROUTING_KEY = "default"
+CELERY_TASK_DEFAULT_ROUTING_KEY = "default" 
 CELERY_TASK_ROUTES = {  
   "products.tasks.*": {
       "queue": "samplequeueone"
@@ -152,7 +180,7 @@ CELERY_TASK_ROUTES = {
 CELERY_BEAT_SCHEDULE = {
     'my-custom-schedule-task': {
         'task': 'task_update_product_using_scrap_data',
-        'schedule': crontab(hour='*/2'),
+        'schedule': crontab(hour='*/1'),
         'args': ()
     },
 }
