@@ -1,5 +1,4 @@
 import requests
-from requests.api import get
 from bs4 import BeautifulSoup
 
 

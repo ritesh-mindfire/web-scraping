@@ -11,3 +11,4 @@ redis==3.5.3
 boto3==1.17.97
 psycopg2==2.8.6
 kombu==5.1.0
+boto3==1.17.97
