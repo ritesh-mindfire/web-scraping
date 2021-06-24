@@ -180,7 +180,77 @@ CELERY_TASK_ROUTES = {
 CELERY_BEAT_SCHEDULE = {
     'my-custom-schedule-task': {
         'task': 'task_update_product_using_scrap_data',
-        'schedule': crontab(hour='*/1'),
+        'schedule': crontab(minute='*/5'),
         'args': ()
+    },
+}
+
+ADMINS = [('Ritesh', 'mfsi.ritesh.g@gmail.com')]
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'log', 'emails')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+        'file_runserver': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log', 'runserver.log'),
+            'formatter': 'verbose'
+        },
+        'file_runserver_error': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log', 'runserver_error.log'),
+            'formatter': 'verbose'
+        },
+        'file_db_backends': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log', 'dbbackend.log'),
+            'formatter': 'verbose'
+        },
+        'file_custom': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log', 'project.log'),
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django.server': {
+            'handlers': ['file_runserver', 'file_runserver_error'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['file_db_backends'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'web_scrap': {
+            'handlers': ['file_custom', 'mail_admins'],
+            'level': 'INFO',
+            'propagate': True,
+        }
     },
 }

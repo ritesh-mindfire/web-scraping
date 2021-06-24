@@ -1,12 +1,28 @@
 import requests
+import logging
 from bs4 import BeautifulSoup
 
+logger = logging.getLogger('web_scrap')
 
 def scrap_amazon_books_data():
     scrap_data = []
     url = "https://www.amazon.in/gp/bestsellers/books/ref=zg_bs_pg_1?ie=UTF8&pg=1"
     
-    webdata = requests.get(url).text
+    req = requests.get(url)
+    
+    # Simple check to check if page was blocked (Usually 503)
+    if req.status_code > 500:
+        if "To discuss automated access to Amazon data please contact" in req.text:
+            print("Page %s was blocked by Amazon. Please try again\n"%url)
+            logger.error('Page was blocked by Amazon')
+
+        else:
+            print("Page %s must have been blocked by Amazon as the status code was %d"%(url,req.status_code))
+            logger.error('Page was blocked by Amazon')
+        return None
+    else:
+        webdata = req.text
+    
     soup = BeautifulSoup(webdata,'lxml')
     # print(soup.prettify())
 

@@ -62,7 +62,11 @@ def task_update_product_using_scrap_data():
 
 def dashboard(request):
     ctx = {}
-    return render(request, 'dashboard.html', context=ctx)
+
+    all_products = Product.objects.all()
+    ctx.update({'objects': all_products})
+    # return render(request, 'dashboard.html', context=ctx)
+    return render(request, 'index.html', context=ctx)
 
 
 class PriceFilterBackend(filters.BaseFilterBackend):

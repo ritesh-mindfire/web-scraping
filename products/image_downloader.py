@@ -16,6 +16,8 @@ from threading import Thread
 
 from django.conf import settings
 
+logger = logging.getLogger('web_scrap')
+
 DEBUG = settings.DEBUG
 AWS_KEY = settings.AWS_ACCESS_KEY_ID
 AWS_SECRET = settings.AWS_SECRET_ACCESS_KEY 
